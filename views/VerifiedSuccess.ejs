@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email Verified</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex items-center justify-center min-h-screen bg-gray-100 px-4">
+  <div class="bg-white p-6 rounded-lg shadow-lg text-center max-w-sm w-full">
+    <svg class="w-12 h-12 mx-auto text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+    </svg>
+    <h1 class="text-xl font-bold text-gray-800 mt-3">Email Verified Successfully!</h1>
+    <p class="text-gray-600 text-sm mt-2">Your email has been verified. Open the app to continue.</p>
+    <a href="#" onclick="handleAppOpen(event)" class="inline-block mt-5 px-5 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition">Open App</a>
+    <p class="text-gray-500 text-xs mt-3">If the app doesn't open, ensure it's installed.</p>
+  </div>
+  <script>
+    function handleAppOpen(event) {
+      event.preventDefault();
+      const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+      let appUrl, fallbackUrl;
+
+      // Detect platform (iOS or Android)
+      if (/android/i.test(userAgent)) {
+        // Android: Use App Link or custom URL scheme
+        appUrl = 'myapp://home'; // Replace with your Android App Link or custom URL scheme
+        fallbackUrl = 'https://play.google.com/store/apps/details?id=com.example.myapp'; // Replace with your Google Play Store link
+      } else if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+        // iOS: Use Universal Link or custom URL scheme
+        appUrl = 'https://www.example.com/app/home'; // Replace with your iOS Universal Link
+        fallbackUrl = 'https://apps.apple.com/us/app/your-app-name/id1234567890'; // Replace with your App Store link
+      } else {
+        // Fallback for non-mobile devices
+        appUrl = 'https://www.example.com'; // Replace with your website
+        fallbackUrl = 'https://www.example.com/download'; // Replace with your website or download page
+      }
+
+      const startTime = Date.now();
+      window.location = appUrl;
+      setTimeout(() => {
+        if (Date.now() - startTime < 2000) {
+          window.location = fallbackUrl;
+        }
+      }, 1000);
+    }
+  </script>
+</body>
+</html>

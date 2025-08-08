@@ -6,7 +6,7 @@ const authenticate=(req,res,next)=>{
             req.headers
                 .authorization.split(' ')[1];
         if (!token) {
-            res.status(200)
+           return res.status(200)
                 .json(
                     {
                         success: false,

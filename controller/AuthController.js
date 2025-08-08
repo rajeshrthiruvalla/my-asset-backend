@@ -139,6 +139,38 @@ const login=async (req,res)=>{
   }
 }
 
+const forgotPassword=async (req,res)=>{
+   const {email}=req.body;
+   try{
+      const user=await User.findOne({email});
+      if(!user)
+      {
+        return  res.status(400).json({message:"User Not Registered"});
+      } 
+      user.verificationToken=crypto.randomBytes(32).toString('hex');
+      user.verificationTokenExpiry=Date.now() + 3600000;
+      user.isVerified=false;
+      await user.save();
+      await sentVerificationMail(user.verificationToken,email);
+      const token=generateToken(user);
+      res.status(201).json({
+        message: 'Verification Mail Sent',
+        user: { name:user.name, email:user.email, currency:user.currency, token }
+        });
+   } catch (error) {
+    console.error('Error updating user:', error);
+    throw error;
+  }
+}
+const changePassword=async (req,res)=>{
+  const id= req.token.userId;
+  const {password}=req.body;
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
+  const user=await User.findById(id);
+  user.password=hashedPassword;
+  await user.save();
+  return res.status(201).json({"message":"Updated Successfully"});
+}
 const updateProfile=async (req,res)=>{
   const id= req.token.userId;
   const {name,currency}=req.body;
@@ -159,4 +191,4 @@ const updateProfile=async (req,res)=>{
     throw error;
   }
 }
-module.exports={register,verifyEmail,login,updateProfile}
+module.exports={register,verifyEmail,login,updateProfile,forgotPassword,changePassword}

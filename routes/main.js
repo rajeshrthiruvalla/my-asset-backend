@@ -22,4 +22,12 @@ router.route('/icons')
   .get(iconList)
   .post(upload.single('image'),storeIcon)
   .put(upload.single('image'),updateIcon);
+
+const {storeAccount,listAccount,updateAccount}=require('../controller/AccountController')
+const {storeAccountValidationRules,updateAccountValidationRules}= require('../validations/accountValidation');
+router.route('/accounts')
+      .get(listAccount)
+      .post(storeAccountValidationRules,validate,storeAccount)
+      .put(updateAccountValidationRules,validate,updateAccount)
+
 module.exports=router

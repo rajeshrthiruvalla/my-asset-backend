@@ -8,9 +8,8 @@ const {updateProfile,changePassword}=require('../controller/AuthController')
 
 router.use(authentificate);
 router.use(emailVerificate);
-const updateProfileValidationRules=require('../validations/updateProfileValidation')
+const {updateProfileValidationRules,changePasswordValidationRules}=require('../validations/authValidation')
 router.post('/update-profile',updateProfileValidationRules,validate,updateProfile)
-const changePasswordValidationRules = require('../validations/changePasswordValidation')
 router.post('/change-password',changePasswordValidationRules,validate,changePassword)
 
 

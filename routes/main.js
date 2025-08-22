@@ -29,4 +29,11 @@ router.route('/accounts')
       .post(storeAccountValidationRules,validate,storeAccount)
       .put(updateAccountValidationRules,validate,updateAccount)
 
+const {storeTransaction,listTransaction,updateTransaction}=require('../controller/TransactionController')
+const {storeTransactionValidationRules,updateTransactionValidationRules}= require('../validations/transactionValidation');
+router.route('/transactions')
+      .get(listTransaction)
+      .post(storeTransactionValidationRules,validate,storeTransaction)
+      .put(updateTransactionValidationRules,validate,updateTransaction)
+
 module.exports=router

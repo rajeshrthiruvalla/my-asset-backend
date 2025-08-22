@@ -6,7 +6,9 @@ const IconSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User', 
     required: false 
-  }
+  },
+}, {
+  timestamps: true
 });
 const Icon = mongoose.model('Icon', IconSchema);
 

@@ -82,8 +82,9 @@ body('id')
       return true;
     })
     .bail()
-    .custom(async (value) => {
-      const idExists = await Account.exists({ _id: value });
+    .custom(async (value,{req}) => {
+      const userId= req.token.userId;
+      const idExists = await Account.exists({ _id: value, userId });
       if (!idExists) {
         throw new Error('id does not exist in the Account collection');
       }

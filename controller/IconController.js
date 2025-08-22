@@ -19,7 +19,7 @@ const storeIcon=async (req, res) => {
                     { userId: { $exists: false } } // Matches icons with no userId
                 ]
             };
-      const iconCheck=Icon.find(query);
+      const iconCheck=await Icon.findOne(query);
       if(iconCheck)
       {
          return res.status(400).json({ message: 'Duplicate Name' });

@@ -1,4 +1,5 @@
-const Account=require('../model/Account')
+const Account=require('../model/Account');
+const Transaction = require('../model/Transaction');
 
 const storeAccount=async (req,res)=>{
     const {name,opening,iconId,type}= req.body;
@@ -16,14 +17,47 @@ const storeAccount=async (req,res)=>{
       });
 }
 
-const listAccount=async (req,res)=>{
-    const userId= req.token.userId; 
-    const accounts =await Account.find({userId});
-      res.json({
-        message: `Account List`,
-        data:accounts
+const listAccount = async (req, res) => {
+  const userId = req.token.userId; 
+  const { type } = req.query;
+
+  const accounts = await Account.find({ userId, type });
+
+  const updatedAccounts = await Promise.all(
+    accounts.map(async (accountDoc) => {
+      // convert Mongoose document to plain JS object
+      const account = accountDoc.toObject();
+
+      // Sum outgoing
+      let result = await Transaction.aggregate([
+        { $match: { fromAccountId: account._id } },
+        { $group: { _id: null, total: { $sum: "$amount" } } }
+      ]);
+      const from = result.length > 0 ? result[0].total : 0;
+
+      // Sum incoming
+      result = await Transaction.aggregate([
+        { $match: { toAccountId: account._id } },
+        { $group: { _id: null, total: { $sum: "$amount" } } }
+      ]);
+      const to = result.length > 0 ? result[0].total : 0;
+
+      // Balance
+      const balance = to - from;
+      account.balance = balance.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
       });
-}
+
+      return account;
+    })
+  );
+
+  res.json({
+    message: "Account List",
+    data: updatedAccounts
+  });
+};
 
 const updateAccount=async (req,res)=>{
     const {name,opening,iconId,id}= req.body;

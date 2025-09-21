@@ -2,6 +2,7 @@ const { body } = require('express-validator');
 const mongoose = require('mongoose');
 const Icon = require('../model/Icon');
 const Account = require('../model/Account');
+const Transaction = require('../model/Transaction');
 
 const storeAccountValidationRules = [
   // Name validation
@@ -150,4 +151,58 @@ body('id')
     }),
 ];
 
-module.exports = {storeAccountValidationRules,updateAccountValidationRules};
+const ignoreAccountValidationRules = [
+body('id')
+    .trim()
+    .notEmpty()
+    .withMessage('id is required')
+    .bail()
+    .custom((value) => {
+      if (!mongoose.isValidObjectId(value)) {
+        throw new Error('id must be a valid MongoDB ObjectId');
+      }
+      return true;
+    })
+    .bail()
+    .custom(async (value,{req}) => {
+      const userId= req.token.userId;
+      const idExists = await Account.exists({ _id: value, userId });
+      if (!idExists) {
+        throw new Error('id does not exist in the Account collection');
+      }
+      return true;
+    })
+];
+
+const deleteAccountValidationRules = [
+body('id')
+    .trim()
+    .notEmpty()
+    .withMessage('id is required')
+    .bail()
+    .custom((value) => {
+      if (!mongoose.isValidObjectId(value)) {
+        throw new Error('id must be a valid MongoDB ObjectId');
+      }
+      return true;
+    })
+    .bail()
+    .custom(async (value,{req}) => {
+      const userId= req.token.userId;
+      let idExists = await Account.exists({ _id: value, userId });
+      if (!idExists) {
+        throw new Error('id does not exist in the Account collection');
+      }
+       idExists = await Transaction.exists({
+                                            $or: [
+                                              { fromAccountId: value },
+                                              { toAccountId: value }
+                                            ]
+                                          });
+      if (idExists) {
+        throw new Error('can not delete, Account having transactions');
+      }
+      return true;
+    })
+];
+module.exports = {storeAccountValidationRules,updateAccountValidationRules,ignoreAccountValidationRules,deleteAccountValidationRules};

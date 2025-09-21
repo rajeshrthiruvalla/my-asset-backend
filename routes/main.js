@@ -22,12 +22,16 @@ router.route('/icons')
   .post(upload.single('image'),storeIcon)
   .put(upload.single('image'),updateIcon);
 
-const {storeAccount,listAccount,updateAccount}=require('../controller/AccountController')
-const {storeAccountValidationRules,updateAccountValidationRules}= require('../validations/accountValidation');
+const {storeAccount,listAccount,updateAccount,ignoreAccount,restoreAccount,deleteAccount}=require('../controller/AccountController')
+const {storeAccountValidationRules,updateAccountValidationRules,ignoreAccountValidationRules,deleteAccountValidationRules}= require('../validations/accountValidation');
 router.route('/accounts')
       .get(listAccount)
       .post(storeAccountValidationRules,validate,storeAccount)
       .put(updateAccountValidationRules,validate,updateAccount)
+      .delete(deleteAccountValidationRules,validate,deleteAccount);
+router.patch('/ignore-account',ignoreAccountValidationRules,validate,ignoreAccount);
+router.patch('/restore-account',ignoreAccountValidationRules,validate,restoreAccount);
+
 
 const {storeTransaction,listTransaction,updateTransaction}=require('../controller/TransactionController')
 const {storeTransactionValidationRules,updateTransactionValidationRules}= require('../validations/transactionValidation');

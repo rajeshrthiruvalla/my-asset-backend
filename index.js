@@ -4,6 +4,7 @@ const path = require('path')
 const app=express()
 const {connectDB}= require('./config/db');
 connectDB();
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use(express.json())
 const auth=require('./routes/auth')
 const main=require('./routes/main')

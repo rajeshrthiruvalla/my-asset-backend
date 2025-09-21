@@ -15,6 +15,11 @@ const AccountSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  ignore: {
+    type: Boolean,
+    required: false,
+    default: false
+  },
   iconId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Icon',

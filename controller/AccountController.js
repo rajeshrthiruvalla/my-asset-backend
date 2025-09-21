@@ -37,4 +37,34 @@ const updateAccount=async (req,res)=>{
         data:account
       });
 }
-module.exports={storeAccount,listAccount,updateAccount}
+
+const ignoreAccount=async (req,res)=>{
+  const {id}= req.body;
+  const account =await Account.findById(id);
+  account.ignore=true;
+  await account.save();
+      res.json({
+        message: `Ignored successfully`,
+        data:account
+      });
+}
+
+const restoreAccount=async (req,res)=>{
+  const {id}= req.body;
+  const account =await Account.findById(id);
+  account.ignore=false;
+  await account.save();
+      res.json({
+        message: `Restored successfully`,
+        data:account
+      });
+}
+
+const deleteAccount=async (req,res)=>{
+  const {id}= req.body;
+  await Account.findByIdAndDelete(id);
+      res.json({
+        message: `Deleted successfully`
+      });
+}
+module.exports={storeAccount,listAccount,updateAccount,ignoreAccount,restoreAccount,deleteAccount}

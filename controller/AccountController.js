@@ -43,11 +43,8 @@ const listAccount = async (req, res) => {
       const to = result.length > 0 ? result[0].total : 0;
 
       // Balance
-      const balance = to - from;
-      account.balance = balance.toLocaleString("en-IN", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      });
+      account.balance = to - from;
+
 
       return account;
     })

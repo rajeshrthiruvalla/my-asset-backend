@@ -26,18 +26,25 @@ const storeAccountValidationRules = [
     }),
 
   // Opening (amount) validation
-  body('opening')
-    .trim()
-    .notEmpty()
-    .withMessage('Opening is required')
-    .isFloat({ min: 0 })
-    .withMessage('Opening must be a non-negative number')
-    .bail()
-    .custom((value) => {
+ body('opening')
+    .custom((value, { req }) => {
+      if (req.body.type !== 'account') {
+        return true; // Skip validation
+      }
+
+      if (value === undefined || value === null || value === '') {
+        throw new Error('Opening is required');
+      }
+
+      if (isNaN(value) || parseFloat(value) < 0) {
+        throw new Error('Opening must be a non-negative number');
+      }
+
       const decimalPlaces = (value.toString().split('.')[1] || '').length;
       if (decimalPlaces > 2) {
         throw new Error('Opening amount cannot have more than 2 decimal places');
       }
+
       return true;
     }),
 
@@ -114,18 +121,25 @@ body('id')
     }),
 
   // Opening (amount) validation
-  body('opening')
-    .trim()
-    .notEmpty()
-    .withMessage('Opening is required')
-    .isFloat({ min: 0 })
-    .withMessage('Opening must be a non-negative number')
-    .bail()
-    .custom((value) => {
+ body('opening')
+    .custom((value, { req }) => {
+      if (req.body.type !== 'account') {
+        return true; // Skip validation
+      }
+
+      if (value === undefined || value === null || value === '') {
+        throw new Error('Opening is required');
+      }
+
+      if (isNaN(value) || parseFloat(value) < 0) {
+        throw new Error('Opening must be a non-negative number');
+      }
+
       const decimalPlaces = (value.toString().split('.')[1] || '').length;
       if (decimalPlaces > 2) {
         throw new Error('Opening amount cannot have more than 2 decimal places');
       }
+
       return true;
     }),
 
@@ -149,6 +163,13 @@ body('id')
       }
       return true;
     }),
+    body('type')
+    .trim()
+    .notEmpty()
+    .withMessage('Type is required')
+    .bail()
+    .isIn(['income', 'expense', 'account'])
+    .withMessage('Type must be one of: income, expense, or account')
 ];
 
 const ignoreAccountValidationRules = [

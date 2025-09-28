@@ -60,11 +60,12 @@ const listAccount = async (req, res) => {
 };
 
 const updateAccount=async (req,res)=>{
-    const {name,opening,iconId,id}= req.body;
+    const {name,opening,iconId,type,id}= req.body;
     const account =await Account.findById(id);
     account.name=name;
     account.opening=opening;
-    account.iconId=iconId
+    account.iconId=iconId;
+    account.type=type;
        await account.save();
       res.json({
         message: `Updated successfully`,

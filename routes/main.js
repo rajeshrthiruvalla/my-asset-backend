@@ -33,11 +33,13 @@ router.patch('/ignore-account',ignoreAccountValidationRules,validate,ignoreAccou
 router.patch('/restore-account',ignoreAccountValidationRules,validate,restoreAccount);
 
 
-const {storeTransaction,listTransaction,updateTransaction}=require('../controller/TransactionController')
+const {storeTransaction,listTransaction,updateTransaction,analysis}=require('../controller/TransactionController')
 const {storeTransactionValidationRules,updateTransactionValidationRules}= require('../validations/transactionValidation');
 router.route('/transactions')
       .get(listTransaction)
       .post(storeTransactionValidationRules,validate,storeTransaction)
       .put(updateTransactionValidationRules,validate,updateTransaction)
+
+router.post('/analysis',analysis);
 
 module.exports=router

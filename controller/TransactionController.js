@@ -108,4 +108,100 @@ const updateTransaction=async (req,res)=>{
         data:transaction
       });
 }
-module.exports={storeTransaction,listTransaction,updateTransaction}
+
+const analysis=async (req,res)=>{
+    const userId= req.token.userId; 
+    const income = await Transaction.aggregate([
+                      // 1. filter by user and type = expense
+                      {
+                        $match: {
+                          userId: new mongoose.Types.ObjectId(userId),
+                          type: 'income'
+                        }
+                      },
+
+                      // 2. group by toAccountId and sum amount
+                      {
+                        $group: {
+                          _id: "$toAccountId",
+                          sum_amount: { $sum: "$amount" }
+                        }
+                      },
+
+                      // 3. join account to get account name
+                      {
+                        $lookup: {
+                          from: "accounts",
+                          localField: "_id",
+                          foreignField: "_id",
+                          as: "account"
+                        }
+                      },
+                      { $unwind: "$account" },
+                      // 4. join icon from account.iconId
+                      {
+                        $lookup: {
+                          from: "icons",
+                          localField: "account.iconId",
+                          foreignField: "_id",
+                          as: "icon"
+                        }
+                      },
+                      { $unwind: "$icon" },
+                      // 5. project final fields
+                      {
+                        $project: {
+                          _id: 0,
+                          account_id: "$_id",
+                          account_name: "$account.name",
+                          sum_amount: 1,
+                          icon: "$icon.path"
+                        }
+                      }
+
+                    ]);
+      const expense = await Transaction.aggregate([
+                      // 1. filter by user and type = expense
+                      {
+                        $match: {
+                          userId: new mongoose.Types.ObjectId(userId),
+                          type: 'expense'
+                        }
+                      },
+
+                      // 2. group by toAccountId and sum amount
+                      {
+                        $group: {
+                          _id: "$toAccountId",
+                          sum_amount: { $sum: "$amount" }
+                        }
+                      },
+
+                      // 3. join account to get account name
+                      {
+                        $lookup: {
+                          from: "accounts",
+                          localField: "_id",
+                          foreignField: "_id",
+                          as: "account"
+                        }
+                      },
+                      { $unwind: "$account" },
+
+                      // 4. project final fields
+                      {
+                        $project: {
+                          _id: 0,
+                          account_id: "$_id",
+                          account_name: "$account.name",
+                          sum_amount: 1
+                        }
+                      }
+                    ]);
+      res.json({
+        message: `List`,
+        income,
+        expense
+      });
+}
+module.exports={storeTransaction,listTransaction,updateTransaction,analysis}

@@ -182,9 +182,7 @@ body('id')
   // Description validation
   body('description')
     .trim()
-    .notEmpty()
-    .withMessage('Description is required')
-    .isLength({ min: 2, max: 500 })
+    .isLength({ max: 500 })
     .withMessage('Description must be between 2 and 500 characters'),
 // Type validation
 body('type')
@@ -195,12 +193,35 @@ body('type')
     .isIn(['income', 'expense', 'account'])
     .withMessage('Type must be one of: income, expense, or account'),
   // entryAt validation
-  body('entryAt')
+body('entryAt')
     .trim()
     .notEmpty()
     .withMessage('entryAt is required')
     .bail()
-    .isDate().withMessage('Date format is incorrect')
+    .isISO8601().withMessage('Date format must be ISO8601 (e.g. 2025-08-16T13:15:00Z)')
+    .toDate() // converts string → JS Date
 ];
 
-module.exports = {storeTransactionValidationRules,updateTransactionValidationRules};
+const deleteTransactionValidationRules = [
+body('id')
+    .trim()
+    .notEmpty()
+    .withMessage('id is required')
+    .bail()
+    .custom((value) => {
+      if (!mongoose.isValidObjectId(value)) {
+        throw new Error('id must be a valid MongoDB ObjectId');
+      }
+      return true;
+    })
+    .bail()
+    .custom(async (value,{req}) => {
+      const userId= req.token.userId;
+      const idExists = await Transaction.exists({ _id: value,userId });
+      if (!idExists) {
+        throw new Error('id does not exist in the Transaction collection');
+      }
+      return true;
+    })];
+
+module.exports = {storeTransactionValidationRules,updateTransactionValidationRules,deleteTransactionValidationRules};

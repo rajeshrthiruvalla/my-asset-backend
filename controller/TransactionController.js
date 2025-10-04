@@ -21,11 +21,15 @@ const storeTransaction=async (req,res)=>{
 
 const listTransaction=async (req,res)=>{
     const userId= req.token.userId; 
+    const { fromDate, toDate } = req.query;
+    const fromDateObject=new Date(`${fromDate}T00:00:00.000Z`);
+    const toDateObject=new Date(`${toDate}T23:59:59.999Z`);
     const transactions = await Transaction.aggregate([
                           // filter by userId
                           {
                             $match: {
-                              userId: new mongoose.Types.ObjectId(userId)
+                              userId: new mongoose.Types.ObjectId(userId),
+                              entryAt: { $gte: fromDateObject, $lte: toDateObject } 
                             }
                           },
 
@@ -111,12 +115,16 @@ const updateTransaction=async (req,res)=>{
 
 const analysis=async (req,res)=>{
     const userId= req.token.userId; 
+    const { fromDate, toDate } = req.body; 
+    const fromDateObject=new Date(`${fromDate}T00:00:00.000Z`);
+    const toDateObject=new Date(`${toDate}T23:59:59.999Z`);
     const income = await Transaction.aggregate([
                       // 1. filter by user and type = expense
                       {
                         $match: {
                           userId: new mongoose.Types.ObjectId(userId),
-                          type: 'income'
+                          type: 'income',
+                          entryAt: { $gte: fromDateObject, $lte: toDateObject } 
                         }
                       },
 
@@ -165,7 +173,8 @@ const analysis=async (req,res)=>{
                       {
                         $match: {
                           userId: new mongoose.Types.ObjectId(userId),
-                          type: 'expense'
+                          type: 'expense',
+                          entryAt: { $gte: fromDateObject, $lte: toDateObject } 
                         }
                       },
 
@@ -198,10 +207,181 @@ const analysis=async (req,res)=>{
                         }
                       }
                     ]);
+       const incomePrev = await Transaction.aggregate([
+                      // 1. filter by user and type = expense
+                      {
+                        $match: {
+                          userId: new mongoose.Types.ObjectId(userId),
+                          type: 'income',
+                          entryAt: { $lt: fromDateObject } 
+                        }
+                      },
+
+                      // 2. group by toAccountId and sum amount
+                      {
+                        $group: {
+                          _id: null,
+                          sum_amount: { $sum: "$amount" }
+                        }
+                      },
+
+                      {
+                        $project: {
+                          _id: 0,
+                          sum_amount: 1,
+                        }
+                      }
+
+                    ]);
+      const expensePrev =  await Transaction.aggregate([
+                      // 1. filter by user and type = expense
+                      {
+                        $match: {
+                          userId: new mongoose.Types.ObjectId(userId),
+                          type: 'expense',
+                          entryAt: { $lt: fromDateObject } 
+                        }
+                      },
+
+                      // 2. group by toAccountId and sum amount
+                      {
+                        $group: {
+                          _id: null,
+                          sum_amount: { $sum: "$amount" }
+                        }
+                      },
+
+                      {
+                        $project: {
+                          _id: 0,
+                          sum_amount: 1,
+                        }
+                      }
+
+                    ]);
+      const carryForward=incomePrev[0]?.sum_amount??0-expensePrev[0]?.sum_amount??0;
+
       res.json({
         message: `List`,
         income,
-        expense
+        expense,
+        carryForward
       });
 }
-module.exports={storeTransaction,listTransaction,updateTransaction,analysis}
+
+
+const deleteTransaction=async (req,res)=>{
+  const {id}= req.body;
+  await Transaction.findByIdAndDelete(id);
+      res.json({
+        message: `Deleted successfully`
+      });
+}
+
+const search = async (req, res) => {
+  const userId = req.token.userId;
+  const  {key}= req.body
+if(!key)
+{
+    res.json({
+    message: ``,
+    data: []
+  });
+}
+  const isNumber = !isNaN(Number(key));
+
+  const orConditions = [
+    { "fromAccount.name": { $regex: key, $options: "i" } },
+    { "toAccount.name": { $regex: key, $options: "i" } },
+    { description: { $regex: key, $options: "i" } },
+  ];
+
+  // if numeric, add amount match
+  if (isNumber) {
+    orConditions.push({ amount: Number(key) });
+  }
+
+  const transactions = await Transaction.aggregate([
+    {
+      $match: {
+        userId: new mongoose.Types.ObjectId(userId)
+      }
+    },
+
+    // join fromAccountId -> Account
+    {
+      $lookup: {
+        from: "accounts",
+        localField: "fromAccountId",
+        foreignField: "_id",
+        as: "fromAccount"
+      }
+    },
+    { $unwind: "$fromAccount" },
+
+    // join fromAccount.iconId -> Icon
+    {
+      $lookup: {
+        from: "icons",
+        localField: "fromAccount.iconId",
+        foreignField: "_id",
+        as: "fromIcon"
+      }
+    },
+    { $unwind: "$fromIcon" },
+
+    // join toAccountId -> Account
+    {
+      $lookup: {
+        from: "accounts",
+        localField: "toAccountId",
+        foreignField: "_id",
+        as: "toAccount"
+      }
+    },
+    { $unwind: "$toAccount" },
+
+    // join toAccount.iconId -> Icon
+    {
+      $lookup: {
+        from: "icons",
+        localField: "toAccount.iconId",
+        foreignField: "_id",
+        as: "toIcon"
+      }
+    },
+    { $unwind: "$toIcon" },
+
+    // search filter
+    {
+      $match: {
+        $or: orConditions
+      }
+    },
+
+    // final projection
+    {
+      $project: {
+        fromAccountId: 1,
+        toAccountId: 1,
+        amount: 1,
+        description: 1,
+        entryAt: 1,
+        type: 1,
+        userId: 1,
+        fromAccount: "$fromAccount.name",
+        toAccount: "$toAccount.name",
+        fromIcon: "$fromIcon.path",
+        toIcon: "$toIcon.path"
+      }
+    }
+  ]);
+
+  res.json({
+    message: `Total ${transactions.length} matches found`,
+    data: transactions
+  });
+};
+
+
+module.exports={storeTransaction,listTransaction,updateTransaction,deleteTransaction,analysis,search}

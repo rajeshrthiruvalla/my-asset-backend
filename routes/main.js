@@ -44,4 +44,11 @@ router.route('/transactions')
 router.post('/analysis',analysis);
 router.post('/search',search);
 
+const {storeBudget,listBudget,updateBudget,deleteBudget}=require('../controller/BudgetController')
+const {storeBudgetValidationRules,updateBudgetValidationRules,deleteBudgetValidationRules}= require('../validations/budgetValidation');
+router.route('/budgets')
+      .get(listBudget)
+      .post(storeBudgetValidationRules,validate,storeBudget)
+      .put(updateBudgetValidationRules,validate,updateBudget)
+      .delete(deleteBudgetValidationRules,validate,deleteBudget);
 module.exports=router

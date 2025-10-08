@@ -6,7 +6,7 @@ const emailVerificate=async (req,res,next)=>{
         const user = await User.findById(id);
         if(!user.isVerified)
         {
-            return res.status(200)
+            return res.status(401)
                 .json(
                     {
                         success: false,
@@ -17,7 +17,7 @@ const emailVerificate=async (req,res,next)=>{
         next();
         }catch(error)
         {
-          return  res.status(400).json({ errors: error })
+          return  res.status(401).json({ errors: error,message: "Email Verification Error" })
         }
 }
 

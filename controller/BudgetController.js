@@ -51,7 +51,7 @@ const listBudget = async (req, res) => {
 
       const spent = result.length > 0 ? result[0].total : 0;
    
-      const budget = await Budget.findOne({accountId:account._id});
+      const budget = await Budget.findOne({accountId:account._id,month,year});
       const budgetId=budget?budget._id:'';
       const limit=budget?budget.limit:'';
       const icon= await Icon.findById(account.iconId);

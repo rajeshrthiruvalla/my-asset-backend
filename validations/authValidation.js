@@ -63,7 +63,7 @@ const registerValidationRules = [
   body('currency')
     .trim()
     .notEmpty().withMessage('Currency is required')
-    .isIn(['USD', 'EUR', 'GBP', 'INR']).withMessage('Currency must be one of: USD, EUR, GBP, INR'),
+    .isIn(['$','₹']).withMessage('Currency must be USD or INR'),
 
   // Password validation
   body('password')
@@ -90,7 +90,7 @@ const updateProfileValidationRules = [
   body('currency')
     .trim()
     .notEmpty().withMessage('Currency is required')
-    .isIn(['USD', 'EUR', 'GBP', 'INR']).withMessage('Currency must be one of: USD, EUR, GBP, INR'),
+    .isIn(['$','₹']).withMessage('Currency must be USD or INR'),
 
 ]
 module.exports = {changePasswordValidationRules,forgotPasswordValidationRules,loginValidationRules,registerValidationRules,updateProfileValidationRules}

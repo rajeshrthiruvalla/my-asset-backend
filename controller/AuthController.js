@@ -13,7 +13,7 @@ const generateToken=(user)=>{
                     email: user.email
                 },
                 "secretkeyappearshere",
-                { expiresIn: "1h" }
+                // { expiresIn: "1h" }
             );
 }
 const sentVerificationMail=async (verificationToken,email)=>{

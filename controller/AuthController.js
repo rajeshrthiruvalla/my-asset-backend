@@ -20,7 +20,7 @@ const sentVerificationMail=async (verificationToken,email)=>{
     const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}&email=${email}`;
            
             const mailOptions = {
-                from: process.env.EMAIL_FROM,
+                from: `"My Asset" <${process.env.EMAIL_USER}>`,
                 to: email,
                 subject: 'Verify Your Email Address',
                 html: `

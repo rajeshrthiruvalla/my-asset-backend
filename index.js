@@ -10,9 +10,6 @@ const auth=require('./routes/auth')
 const main=require('./routes/main')
 app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'ejs')
-app.use('/',auth)
-app.use('/',main)
-app.use(express.urlencoded({ extended: true }))
 app.all('/google-auth', (req, res) => {
   res.render('Params', {
     method: req.method,
@@ -20,4 +17,8 @@ app.all('/google-auth', (req, res) => {
     bodyParams: req.body
   });
 })
+app.use('/',auth)
+app.use('/',main)
+app.use(express.urlencoded({ extended: true }))
+
 app.listen(3000)

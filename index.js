@@ -6,6 +6,7 @@ const {connectDB}= require('./config/db');
 connectDB();
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 const auth=require('./routes/auth')
 const main=require('./routes/main')
 app.set('views', path.join(__dirname, 'views'))
@@ -22,6 +23,5 @@ const queryParams = req.query || {};
 })
 app.use('/',auth)
 app.use('/',main)
-app.use(express.urlencoded({ extended: true }))
 
 app.listen(3000)

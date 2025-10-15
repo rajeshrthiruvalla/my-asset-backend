@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Request Parameters</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; }
+    h1 { color: #333; }
+    h2 { color: #555; }
+    ul { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    li { margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Received Request on /google-auth</h1>
+  <p><strong>Method:</strong> <%= method %></p>
+  
+  <h2>GET Query Parameters:</h2>
+  <ul>
+    <% if (Object.keys(queryParams).length === 0) { %>
+      <li><em>No parameters</em></li>
+    <% } else { %>
+      <% Object.entries(queryParams).forEach(([key, value]) => { %>
+        <li><strong><%= key %>:</strong> <%= JSON.stringify(value) %></li>
+      <% }); %>
+    <% } %>
+  </ul>
+  
+  <h2>POST Body Parameters:</h2>
+  <ul>
+    <% if (Object.keys(bodyParams).length === 0) { %>
+      <li><em>No parameters</em></li>
+    <% } else { %>
+      <% Object.entries(bodyParams).forEach(([key, value]) => { %>
+        <li><strong><%= key %>:</strong> <%= JSON.stringify(value) %></li>
+      <% }); %>
+    <% } %>
+  </ul>
+  
+  <p><em>Note: If body params are empty, ensure middleware like express.json() is enabled and the request has a valid body (e.g., JSON or form data).</em></p>
+</body>
+</html>

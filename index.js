@@ -11,10 +11,13 @@ const main=require('./routes/main')
 app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'ejs')
 app.all('/google-auth', (req, res) => {
-  res.render('Params', {
+const queryParams = req.query || {};
+  const bodyParams = req.body || {};
+
+  res.render('Params', {  // Note: Match your filename 'Params.ejs' (case-sensitive)
     method: req.method,
-    queryParams: req.query,
-    bodyParams: req.body
+    queryParams,
+    bodyParams
   });
 })
 app.use('/',auth)

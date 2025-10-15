@@ -1,6 +1,7 @@
 const bcrypt=require('bcrypt');
 const jwt = require("jsonwebtoken");
 const transporter=require('../config/mail');
+const axios = require("axios");
 const crypto = require('crypto');
 const User=require('../model/User')
 const saltRounds = 10; 
@@ -191,4 +192,50 @@ const updateProfile=async (req,res)=>{
     throw error;
   }
 }
-module.exports={register,verifyEmail,login,updateProfile,forgotPassword,changePassword}
+
+const googleLogin=async (req,res)=>{
+  const code = req.query.code;
+
+  try {
+    // Step 1: Exchange code for tokens
+    const tokenResponse = await axios.post("https://oauth2.googleapis.com/token", {
+      code,
+      client_id: "1044499532835-l9mj9dmul8nkdep2hl93piuid894h97n.apps.googleusercontent.com",
+      client_secret: "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",
+      redirect_uri: "https://myasset.click/google-auth",
+      grant_type: "authorization_code",
+    });
+
+    const { access_token, id_token } = tokenResponse.data;
+
+    // Step 2: Use access token to get user info
+    const userResponse = await axios.get("https://www.googleapis.com/oauth2/v2/userinfo", {
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+      },
+    });
+
+    const user = userResponse.data;
+    console.log("Google User Info:", user);
+    
+    const queryParams=user;
+    const bodyParams={};
+      res.render('Params', {  // Note: Match your filename 'Params.ejs' (case-sensitive)
+    method: req.method,
+    queryParams,
+    bodyParams
+  });
+    // Step 3: You can now log in or register the user in your DB
+    // res.json({ success: true, user });
+
+    //   const queryParams = new URLSearchParams(req.query).toString();
+
+//   const intentUrl = `intent://auth?${queryParams}#Intent;scheme=myapp;package=com.argsolution.myasset;S.browser_fallback_url=https://play.google.com/store/apps/details?id=com.argsolution.myasset;end`;
+
+//   res.redirect(intentUrl);
+  } catch (error) {
+    console.error("Google Auth Error:", error.response?.data || error.message);
+    res.status(500).json({ error: "Google authentication failed" });
+  }
+}
+module.exports={register,verifyEmail,login,updateProfile,forgotPassword,changePassword,googleLogin}

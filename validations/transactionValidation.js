@@ -85,8 +85,8 @@ body('type')
     .notEmpty()
     .withMessage('Type is required')
     .bail()
-    .isIn(['income', 'expense', 'transaction'])
-    .withMessage('Type must be one of: income, expense, or transaction'),
+    .isIn(['income', 'expense', 'transfer'])
+    .withMessage('Type must be one of: income, expense, or transfer'),
   // entryAt validation
   body('entryAt')
     .trim()

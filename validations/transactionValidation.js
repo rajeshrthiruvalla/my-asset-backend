@@ -19,7 +19,12 @@ const storeTransactionValidationRules = [
     .bail()
     .custom(async (value,{req}) => {
       const userId= req.token.userId;
-      const accountExists = await Account.exists({ _id: value,userId,type:'account' });
+      let condition={ _id: value,userId,type:'account' };
+      if(req.body.type=='income')
+      {
+        condition={ ...condition,type:'income' };
+      }
+      const accountExists = await Account.exists(condition);
       if (!accountExists) {
         throw new Error('Account does not exist');
       }
@@ -44,7 +49,7 @@ const storeTransactionValidationRules = [
       let condition={ _id: value,userId };
       switch(req.body.type)
       {
-        case 'income':condition={...condition,type:'income'};break;
+        case 'income':condition={...condition,type:'account'};break;
         case 'expence':condition={...condition,type:'income'};break;
         case 'transfer':condition={...condition,type:'account'};break;
       }
@@ -129,7 +134,12 @@ body('id')
     .bail()
     .custom(async (value,{req}) => {
       const userId= req.token.userId;
-      const accountExists = await Account.exists({ _id: value,userId,type:'account' });
+      let condition={ _id: value,userId,type:'account' };
+      if(req.body.type=='income')
+      {
+        condition={ ...condition,type:'income' };
+      }
+      const accountExists = await Account.exists(condition);
       if (!accountExists) {
         throw new Error('Account does not exist');
       }
@@ -154,7 +164,7 @@ body('id')
       let condition={ _id: value,userId };
       switch(req.body.type)
       {
-        case 'income':condition={...condition,type:'income'};break;
+        case 'income':condition={...condition,type:'account'};break;
         case 'expence':condition={...condition,type:'income'};break;
         case 'transfer':condition={...condition,type:'account'};break;
       }

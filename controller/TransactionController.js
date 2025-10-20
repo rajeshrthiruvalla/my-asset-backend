@@ -131,7 +131,7 @@ const analysis=async (req,res)=>{
                       // 2. group by toAccountId and sum amount
                       {
                         $group: {
-                          _id: "$toAccountId",
+                          _id: "$fromAccountId",
                           sum_amount: { $sum: "$amount" }
                         }
                       },

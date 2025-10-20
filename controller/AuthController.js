@@ -3,7 +3,9 @@ const jwt = require("jsonwebtoken");
 const transporter=require('../config/mail');
 const axios = require("axios");
 const crypto = require('crypto');
-const User=require('../model/User')
+const User=require('../model/User');
+const Account = require('../model/Account');
+const mongoose = require('mongoose');
 const saltRounds = 10; 
 
 const generateToken=(user)=>{
@@ -57,7 +59,7 @@ const  register=async (req,res)=>{
                                     isVerified: false 
                                   });
             await user.save();
-            
+
             const backup = mongoose.connection.collection("accounts_backup");
             const docs = await backup.find().toArray();
 

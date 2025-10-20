@@ -196,14 +196,24 @@ const analysis=async (req,res)=>{
                         }
                       },
                       { $unwind: "$account" },
-
-                      // 4. project final fields
+                     // 4. join icon from account.iconId
+                      {
+                        $lookup: {
+                          from: "icons",
+                          localField: "account.iconId",
+                          foreignField: "_id",
+                          as: "icon"
+                        }
+                      },
+                      { $unwind: "$icon" },
+                      // 5. project final fields
                       {
                         $project: {
                           _id: 0,
                           account_id: "$_id",
                           account_name: "$account.name",
-                          sum_amount: 1
+                          sum_amount: 1,
+                          icon: "$icon.path"
                         }
                       }
                     ]);

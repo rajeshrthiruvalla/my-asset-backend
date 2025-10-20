@@ -25,7 +25,7 @@
       // Detect platform (iOS or Android)
       if (/android/i.test(userAgent)) {
         // Android: Use App Link or custom URL scheme
-        appUrl = 'myapp://home'; // Replace with your Android App Link or custom URL scheme
+        appUrl = 'myasset://'; // Replace with your Android App Link or custom URL scheme
         fallbackUrl = 'https://play.google.com/store/apps/details?id=com.example.myapp'; // Replace with your Google Play Store link
       } else if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
         // iOS: Use Universal Link or custom URL scheme

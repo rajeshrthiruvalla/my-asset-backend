@@ -57,6 +57,17 @@ const  register=async (req,res)=>{
                                     isVerified: false 
                                   });
             await user.save();
+            
+            const backup = mongoose.connection.collection("accounts_backup");
+            const docs = await backup.find().toArray();
+
+            const newAccounts = docs.map((doc) => {
+                                  delete doc._id;
+                                  doc.userId = user._id;
+                                  return doc;
+                                });
+            await Account.insertMany(newAccounts);
+
             const token=generateToken(user);
 
             await sentVerificationMail(verificationToken,email);

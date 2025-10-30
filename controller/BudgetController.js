@@ -33,12 +33,12 @@ const listBudget = async (req, res) => {
         {
           $match: {
             toAccountId: account._id,
-            $expr: {
-              $and: [
-                { $eq: [{ $month: "$entryAt" }, month] },
-                { $eq: [{ $year: "$entryAt" }, year] }
-              ]
-            }
+            // $expr: {
+            //   $and: [
+            //     { $eq: [{ $month: "$entryAt" }, month] },
+            //     { $eq: [{ $year: "$entryAt" }, year] }
+            //   ]
+            // }
           }
         },
         {

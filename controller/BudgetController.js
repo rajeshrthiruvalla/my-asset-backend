@@ -48,7 +48,7 @@ const listBudget = async (req, res) => {
           }
         }
       ]);
-
+      console.log(result);
       const spent = result.length > 0 ? result[0].total : 0;
    
       const budget = await Budget.findOne({accountId:account._id,month,year});

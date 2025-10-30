@@ -28,17 +28,17 @@ const listBudget = async (req, res) => {
   const updatedBudgets = await Promise.all(
     expenses.map(async (accountDoc) => {
       const account = accountDoc.toObject();
-
+      console.log(month,year,account._id);
       const result = await Transaction.aggregate([
         {
           $match: {
             toAccountId: account._id,
-            // $expr: {
-            //   $and: [
-            //     { $eq: [{ $month: "$entryAt" }, month] },
-            //     { $eq: [{ $year: "$entryAt" }, year] }
-            //   ]
-            // }
+            $expr: {
+              $and: [
+                { $eq: [{ $month: "$entryAt" }, month] },
+                { $eq: [{ $year: "$entryAt" }, year] }
+              ]
+            }
           }
         },
         {

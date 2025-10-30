@@ -23,20 +23,21 @@ const storeBudget=async (req,res)=>{
 const listBudget = async (req, res) => {
   const userId = req.token.userId; 
   const { month, year } = req.query;
-
+  const monthInt=parseInt(month);
+  const yearInt=parseInt(year);
   const expenses = await Account.find({ userId, type:'expense' });
   const updatedBudgets = await Promise.all(
     expenses.map(async (accountDoc) => {
       const account = accountDoc.toObject();
-      console.log(month,year,account._id);
+
       const result = await Transaction.aggregate([
         {
           $match: {
             toAccountId: account._id,
             $expr: {
               $and: [
-                { $eq: [{ $month: "$entryAt" }, month] },
-                { $eq: [{ $year: "$entryAt" }, year] }
+                { $eq: [{ $month: "$entryAt" }, monthInt] },
+                { $eq: [{ $year: "$entryAt" }, yearInt] }
               ]
             }
           }
@@ -48,7 +49,7 @@ const listBudget = async (req, res) => {
           }
         }
       ]);
-      console.log(result);
+
       const spent = result.length > 0 ? result[0].total : 0;
    
       const budget = await Budget.findOne({accountId:account._id,month,year});

@@ -97,8 +97,7 @@ const googleLoginValidationRules = [
   body('email')
     .trim()
     .notEmpty().withMessage('Email is required')
-    .isEmail().withMessage('Invalid email format')
-    .normalizeEmail(),
+    .isEmail().withMessage('Invalid email format'),
 
   // Currency validation
   body('currency')

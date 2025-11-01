@@ -6,6 +6,7 @@ const crypto = require('crypto');
 const User=require('../model/User');
 const Account = require('../model/Account');
 const mongoose = require('mongoose');
+const { OAuth2Client } = require('google-auth-library');
 const saltRounds = 10; 
 
 const generateToken=(user)=>{
@@ -206,14 +207,6 @@ const updateProfile=async (req,res)=>{
   }
 }
 
-const googleLogin=async (req,res)=>{
-
-  const queryParams = new URLSearchParams(req.query).toString();
-  const intentUrl = `intent://?${queryParams}#Intent;scheme=myapp;package=com.argsolution.myasset;S.browser_fallback_url=https://play.google.com/store/apps/details?id=com.argsolution.myasset;end`;
-  res.redirect(intentUrl);
-
-}
-
 const deleteAccount=async (req,res)=>{
     return res.render('DeleteAccount');
 }
@@ -293,4 +286,67 @@ const deleteAccountVerifyEmail = async (req, res) => {
         })
   }
 };
+
+const googleLogin=async (req,res)=>{
+  try {
+            const { name, email, currency, googleId } = req.body;
+
+        // Verify Google ID token
+            const ticket = await client.verifyIdToken({
+              idToken: googleId,
+              audience: '1044499532835-0gg37adhiclct1v7pmkgd6bq1d76e9df.apps.googleusercontent.com', // Specify the CLIENT_ID of the app that accesses the backend
+            });
+
+            const payload = ticket.getPayload();
+            const googleEmail = payload['email']; // Email from Google
+            const googleUserId = payload['sub']; // Google user ID
+            const googleName = payload['name']; // Name from Google (optional)
+
+            // Verify the provided email matches the one in the Google token
+            if (googleEmail !== email) {
+              return res.status(400).json({ message: 'Email does not match Google account' });
+            }
+
+            // Optional: Verify name matches (if required)
+            if (googleName && googleName !== name) {
+              return res.status(400).json({ message: 'Name does not match Google account' });
+            }
+
+            let user=await User.findOne({email});
+            if(user)
+            {
+              user.googleId=googleId;
+              user.isVerified=true;
+              await user.save();
+            }else{
+              user = new User({ name,
+                                    email, 
+                                    currency, 
+                                    googleId,
+                                    isVerified: true 
+                                  });
+              await user.save();
+
+              const backup = mongoose.connection.collection("accounts_backup");
+              const docs = await backup.find().toArray();
+
+              const newAccounts = docs.map((doc) => {
+                                    delete doc._id;
+                                    doc.userId = user._id;
+                                    return doc;
+                                  });
+              await Account.insertMany(newAccounts);
+            }
+
+            const token=generateToken(user);
+            res.status(201).json({
+            message: 'User registered successfully',
+            user: { name:user.name, email:user.email, currency:user.currency, token }
+            });
+    } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ message: 'Server error during registration' });
+  }
+}
+
 module.exports={register,verifyEmail,login,updateProfile,forgotPassword,changePassword,googleLogin,deleteAccount,deleteAccountSubmit,deleteAccountVerifyEmail}

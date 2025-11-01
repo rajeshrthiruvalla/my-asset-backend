@@ -85,4 +85,30 @@ const updateProfileValidationRules = [
     .isIn(['$','₹']).withMessage('Currency must be USD or INR'),
 
 ]
-module.exports = {changePasswordValidationRules,forgotPasswordValidationRules,loginValidationRules,registerValidationRules,updateProfileValidationRules}
+
+const googleLoginValidationRules = [
+  // Name validation
+  body('name')
+    .trim()
+    .notEmpty().withMessage('Name is required')
+    .isLength({ min: 2, max: 50 }).withMessage('Name must be between 2 and 50 characters'),
+
+  // Email validation
+  body('email')
+    .trim()
+    .notEmpty().withMessage('Email is required')
+    .isEmail().withMessage('Invalid email format')
+    .normalizeEmail(),
+
+  // Currency validation
+  body('currency')
+    .trim()
+    .notEmpty().withMessage('Currency is required')
+    .isIn(['$','₹']).withMessage('Currency must be USD or INR'),
+
+  body('googleId')
+    .notEmpty().withMessage('Google ID is required')
+    .isJWT().withMessage('Invalid Google ID token format')
+
+]
+module.exports = {changePasswordValidationRules,forgotPasswordValidationRules,loginValidationRules,registerValidationRules,updateProfileValidationRules,googleLoginValidationRules}

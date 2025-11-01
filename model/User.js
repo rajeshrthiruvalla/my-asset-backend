@@ -6,7 +6,8 @@ const UserSchema = new mongoose.Schema({
   password: String,
   verificationToken: String,
   verificationTokenExpiry: Date,
-  isVerified: { type: Boolean, default: false }
+  isVerified: { type: Boolean, default: false },
+  googleId: String
 });
 const User = mongoose.model('User', UserSchema);
 

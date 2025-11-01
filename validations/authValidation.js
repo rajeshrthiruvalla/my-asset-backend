@@ -108,7 +108,12 @@ const googleLoginValidationRules = [
 
   body('googleId')
     .notEmpty().withMessage('Google ID is required')
-    .isJWT().withMessage('Invalid Google ID token format')
+    .isNumeric().withMessage('Google ID must be numeric')
+    .isLength({ min: 10, max: 30 }).withMessage('Google ID length is invalid'),
+
+   body('idToken')
+    .notEmpty().withMessage('ID token is required')
+    .isJWT().withMessage('Invalid ID token format'),
 
 ]
 module.exports = {changePasswordValidationRules,forgotPasswordValidationRules,loginValidationRules,registerValidationRules,updateProfileValidationRules,googleLoginValidationRules}

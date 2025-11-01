@@ -304,7 +304,7 @@ const googleLogin=async (req,res)=>{
             const googleName = payload['name']; // Name from Google (optional)
 
             // Verify the provided email matches the one in the Google token
-            console.log(payload,email);
+
             if (googleEmail !== email) {
               return res.status(400).json({ message: 'Email does not match Google account' });
             }

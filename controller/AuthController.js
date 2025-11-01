@@ -290,11 +290,12 @@ const deleteAccountVerifyEmail = async (req, res) => {
 const googleLogin=async (req,res)=>{
   try {
             const { name, email, currency, googleId, idToken } = req.body;
-
+            const CLIENT_ID='1044499532835-0gg37adhiclct1v7pmkgd6bq1d76e9df.apps.googleusercontent.com';
+            const client = new OAuth2Client(CLIENT_ID);
         // Verify Google ID token
             const ticket = await client.verifyIdToken({
               idToken,
-              audience: '1044499532835-0gg37adhiclct1v7pmkgd6bq1d76e9df.apps.googleusercontent.com', // Specify the CLIENT_ID of the app that accesses the backend
+              audience: CLIENT_ID, // Specify the CLIENT_ID of the app that accesses the backend
             });
 
             const payload = ticket.getPayload();

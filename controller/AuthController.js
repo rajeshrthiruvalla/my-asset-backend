@@ -211,6 +211,7 @@ const updateProfile=async (req,res)=>{
     if (!updatedUser) {
       throw new Error('User not found');
     }
+    const token=generateToken(user);
     return res.status(201).json({"message":"Updated Successfully",
                                  "data":{ name:updatedUser.name, email:updatedUser.email, currency:updatedUser.currency, token, photo:updatedUser.photo }});
   } catch (error) {

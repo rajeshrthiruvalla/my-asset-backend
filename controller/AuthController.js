@@ -188,19 +188,31 @@ const changePassword=async (req,res)=>{
 }
 const updateProfile=async (req,res)=>{
   const id= req.token.userId;
-  const {name,currency}=req.body;
+  const body=req.body;
+  const data={};
+  if(body.currency)
+  {
+    data.currency=body.currency;
+  }
+  if(body.country)
+  {
+    data.country=body.country;
+  }
+  if(body.name)
+  {
+    data.name=body.name;
+  }
   try {
     const updatedUser = await User.findByIdAndUpdate(
       id,
-      { $set: {name,currency} }, // Fields to update
+      { $set: data }, // Fields to update
       { new: true, runValidators: true } // Options: return updated doc, validate data
     );
     if (!updatedUser) {
       throw new Error('User not found');
     }
     return res.status(201).json({"message":"Updated Successfully",
-                                 "data":{name:updatedUser.name,
-                                         currency:updatedUser.currency}});
+                                 "data":{ name:updatedUser.name, email:updatedUser.email, currency:updatedUser.currency, token, photo:updatedUser.photo }});
   } catch (error) {
     console.error('Error updating user:', error);
     throw error;

@@ -72,19 +72,6 @@ const registerValidationRules = [
     .custom((value, { req }) => value === req.body.password).withMessage('Passwords do not match')
 ]
 
-const updateProfileValidationRules = [
-  
-  body('name')
-    .trim()
-    .notEmpty().withMessage('Name is required')
-    .isLength({ min: 2, max: 50 }).withMessage('Name must be between 2 and 50 characters'),
-
-  body('currency')
-    .trim()
-    .notEmpty().withMessage('Currency is required')
-    .isIn(['$','₹']).withMessage('Currency must be USD or INR'),
-
-]
 
 const googleLoginValidationRules = [
   // Name validation
@@ -115,4 +102,4 @@ const googleLoginValidationRules = [
     .isJWT().withMessage('Invalid ID token format'),
 
 ]
-module.exports = {changePasswordValidationRules,forgotPasswordValidationRules,loginValidationRules,registerValidationRules,updateProfileValidationRules,googleLoginValidationRules}
+module.exports = {changePasswordValidationRules,forgotPasswordValidationRules,loginValidationRules,registerValidationRules,googleLoginValidationRules}

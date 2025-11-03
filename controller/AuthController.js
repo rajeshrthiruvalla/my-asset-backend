@@ -289,7 +289,7 @@ const deleteAccountVerifyEmail = async (req, res) => {
 
 const googleLogin=async (req,res)=>{
   try {
-            const { name, email, currency, googleId, idToken } = req.body;
+            const { name, email, currency, googleId, idToken, photo } = req.body;
             const CLIENT_ID='338941303867-841931uvovjkqh5i1p9cv037ecqpsffv.apps.googleusercontent.com';
             const client = new OAuth2Client(CLIENT_ID);
         // Verify Google ID token
@@ -319,12 +319,14 @@ const googleLogin=async (req,res)=>{
             {
               user.googleId=googleId;
               user.isVerified=true;
+              user.photo=photo;
               await user.save();
             }else{
               user = new User({ name,
                                     email, 
                                     currency, 
                                     googleId,
+                                    photo,
                                     isVerified: true 
                                   });
               await user.save();
@@ -343,7 +345,7 @@ const googleLogin=async (req,res)=>{
             const token=generateToken(user);
             res.status(201).json({
             message: 'User registered successfully',
-            user: { name:user.name, email:user.email, currency:user.currency, token }
+            user: { name:user.name, email:user.email, currency:user.currency, token, photo:user.photo }
             });
     } catch (error) {
     console.error('Registration error:', error);

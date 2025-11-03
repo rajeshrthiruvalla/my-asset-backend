@@ -213,7 +213,7 @@ const updateProfile=async (req,res)=>{
     }
     const token=generateToken(updatedUser);
     return res.status(201).json({"message":"Updated Successfully",
-                                 "data":{ name:updatedUser.name, email:updatedUser.email, currency:updatedUser.currency, token, photo:updatedUser.photo }});
+                                 "user":{ name:updatedUser.name, email:updatedUser.email, currency:updatedUser.currency, token, photo:updatedUser.photo }});
   } catch (error) {
     console.error('Error updating user:', error);
     throw error;

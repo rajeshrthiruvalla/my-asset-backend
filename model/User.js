@@ -3,6 +3,7 @@ const UserSchema = new mongoose.Schema({
   name: String,
   email: { type: String, unique: true },
   currency: String,
+  country: String,
   password: String,
   verificationToken: String,
   verificationTokenExpiry: Date,

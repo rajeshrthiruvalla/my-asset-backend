@@ -58,8 +58,7 @@ const registerValidationRules = [
   // Currency validation
   body('currency')
     .trim()
-    .notEmpty().withMessage('Currency is required')
-    .isIn(['$','₹']).withMessage('Currency must be USD or INR'),
+    .notEmpty().withMessage('Currency is required'),
 
   // Password validation
   body('password')
@@ -89,8 +88,7 @@ const googleLoginValidationRules = [
   // Currency validation
   body('currency')
     .trim()
-    .notEmpty().withMessage('Currency is required')
-    .isIn(['$','₹']).withMessage('Currency must be USD or INR'),
+    .notEmpty().withMessage('Currency is required'),
 
   body('googleId')
     .notEmpty().withMessage('Google ID is required')

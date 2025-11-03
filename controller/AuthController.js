@@ -20,6 +20,15 @@ const generateToken=(user)=>{
                 // { expiresIn: "1h" }
             );
 }
+const commonResponse=(user)=>{
+  const token=generateToken(user);
+  return { name:user.name, 
+           email:user.email, 
+           currency:user.currency, 
+           token, 
+           photo:user.photo, 
+           country:user.country }
+}
 const sentVerificationMail=async (verificationToken,email)=>{
     const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}&email=${email}`;
            
@@ -71,13 +80,12 @@ const  register=async (req,res)=>{
                                 });
             await Account.insertMany(newAccounts);
 
-            const token=generateToken(user);
 
             await sentVerificationMail(verificationToken,email);
 
             res.status(201).json({
             message: 'User registered successfully',
-            user: { name, email, currency, token }
+            user: commonResponse(user)
             });
     } catch (error) {
     console.error('Registration error:', error);
@@ -112,7 +120,6 @@ const verifyEmail = async (req, res) => {
 
      res.render('VerifiedSuccess')
   } catch (error) {
-    console.error('Email verification error:', error);
       return  res.render('VerificationFailed', {
             message: "We couldn't verify your email. Server error during email verification.",
             secondary:"Retry after some time"
@@ -143,10 +150,9 @@ const login=async (req,res)=>{
             await sentVerificationMail(user.verificationToken,email);
             return  res.status(400).json({message:"Verification Link Sent To Your Email. Please verify"});
         }
-        const token=generateToken(user);
         res.status(201).json({
         message: 'Login successfully',
-        user: { name:user.name, email:user.email, currency:user.currency, token }
+        user: commonResponse(user)
         });
   } catch (error) {
     console.error('Login error:', error);
@@ -167,10 +173,9 @@ const forgotPassword=async (req,res)=>{
       user.isVerified=false;
       await user.save();
       await sentVerificationMail(user.verificationToken,email);
-      const token=generateToken(user);
       res.status(201).json({
         message: 'Verification Mail Sent',
-        user: { name:user.name, email:user.email, currency:user.currency, token }
+        user: commonResponse(user)
         });
    } catch (error) {
     console.error('Error updating user:', error);
@@ -211,9 +216,9 @@ const updateProfile=async (req,res)=>{
     if (!updatedUser) {
       throw new Error('User not found');
     }
-    const token=generateToken(updatedUser);
+
     return res.status(201).json({"message":"Updated Successfully",
-                                 "user":{ name:updatedUser.name, email:updatedUser.email, currency:updatedUser.currency, token, photo:updatedUser.photo }});
+                                 "user":commonResponse(updatedUser)});
   } catch (error) {
     console.error('Error updating user:', error);
     throw error;
@@ -355,10 +360,9 @@ const googleLogin=async (req,res)=>{
               await Account.insertMany(newAccounts);
             }
 
-            const token=generateToken(user);
             res.status(201).json({
             message: 'User registered successfully',
-            user: { name:user.name, email:user.email, currency:user.currency, token, photo:user.photo }
+            user: commonResponse(user)
             });
     } catch (error) {
     console.error('Registration error:', error);

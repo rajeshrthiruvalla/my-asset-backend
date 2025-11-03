@@ -289,8 +289,8 @@ const deleteAccountVerifyEmail = async (req, res) => {
 
 const googleLogin=async (req,res)=>{
   try {
-            const { name, email, currency, googleId, idToken, photo } = req.body;
-            const CLIENT_ID='338941303867-841931uvovjkqh5i1p9cv037ecqpsffv.apps.googleusercontent.com';
+            const { name, email, currency, googleId, idToken, photo, webClientId } = req.body;
+            const CLIENT_ID=webClientId;
             const client = new OAuth2Client(CLIENT_ID);
         // Verify Google ID token
             const ticket = await client.verifyIdToken({

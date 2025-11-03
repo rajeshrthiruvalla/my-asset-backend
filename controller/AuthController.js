@@ -187,36 +187,37 @@ const changePassword=async (req,res)=>{
   return res.status(201).json({"message":"Updated Successfully"});
 }
 const updateProfile=async (req,res)=>{
-  const id= req.token.userId;
-  const body=req.body;
-  const data={};
-  if(body.currency)
-  {
-    data.currency=body.currency;
-  }
-  if(body.country)
-  {
-    data.country=body.country;
-  }
-  if(body.name)
-  {
-    data.name=body.name;
-  }
-  try {
-    const updatedUser = await User.findByIdAndUpdate(
-      id,
-      { $set: data }, // Fields to update
-      { new: true, runValidators: true } // Options: return updated doc, validate data
-    );
-    if (!updatedUser) {
-      throw new Error('User not found');
-    }
-    return res.status(201).json({"message":"Updated Successfully",
-                                 "data":{ name:updatedUser.name, email:updatedUser.email, currency:updatedUser.currency, token, photo:updatedUser.photo }});
-  } catch (error) {
-    console.error('Error updating user:', error);
-    throw error;
-  }
+  console.log(req);
+  // const id= req.token.userId;
+  // const body=req.body;
+  // const data={};
+  // if(body.currency)
+  // {
+  //   data.currency=body.currency;
+  // }
+  // if(body.country)
+  // {
+  //   data.country=body.country;
+  // }
+  // if(body.name)
+  // {
+  //   data.name=body.name;
+  // }
+  // try {
+  //   const updatedUser = await User.findByIdAndUpdate(
+  //     id,
+  //     { $set: data }, // Fields to update
+  //     { new: true, runValidators: true } // Options: return updated doc, validate data
+  //   );
+  //   if (!updatedUser) {
+  //     throw new Error('User not found');
+  //   }
+  //   return res.status(201).json({"message":"Updated Successfully",
+  //                                "data":{ name:updatedUser.name, email:updatedUser.email, currency:updatedUser.currency, token, photo:updatedUser.photo }});
+  // } catch (error) {
+  //   console.error('Error updating user:', error);
+  //   throw error;
+  // }
 }
 
 const deleteAccount=async (req,res)=>{

@@ -269,7 +269,9 @@ const analysis=async (req,res)=>{
                       }
 
                     ]);
-      const carryForward=incomePrev[0]?.sum_amount??0-expensePrev[0]?.sum_amount??0;
+      const oldIncomeAmount=incomePrev[0]?.sum_amount??0;
+      const oldExpenseAmount=expensePrev[0]?.sum_amount??0;
+      const carryForward=oldIncomeAmount-oldExpenseAmount;
 
       res.json({
         message: `List`,

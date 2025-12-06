@@ -131,8 +131,8 @@ body('id')
         throw new Error('Opening is required');
       }
 
-      if (isNaN(value) || parseFloat(value) < 0) {
-        throw new Error('Opening must be a non-negative number');
+      if (isNaN(value)) {
+        throw new Error('Opening must be a number');
       }
 
       const decimalPlaces = (value.toString().split('.')[1] || '').length;

@@ -1,5 +1,7 @@
 const SmsTemplate=require('../model/SmsTemplate')
 const TemplateSelection=require('../model/TemplateSelection')
+const Sender=require('../model/Sender')
+const Request=require('../model/Request')
 
 const createTemplate=async (req,res)=>{
     const userId= req.token.userId;
@@ -59,10 +61,12 @@ const splitIntwoString=(key,input)=>{    // e.g. "{"
   const secondPart = input.slice(index+key.length);     // everything after
   return [firstPart, secondPart];
 }
-const filterSms=async (req,res)=>{
-    const userId= req.token.userId;
-    const { sms } = req.body;
-    const smsTemplates=await SmsTemplate.find({});
+const smsToData=async(sms)=>{
+    const smsTemplates = await SmsTemplate.find({
+            type: { $in: ['income', 'expense', 'transfer'] }
+            });
+            // console.log(smsTemplates);
+            // console.log(sms)
     let templates=smsTemplates.map((item)=>{
                             const words=[];
                             const keys=[];
@@ -78,16 +82,14 @@ const filterSms=async (req,res)=>{
                                 rest=split2[1];
                                 keys.push(key);
                             }
-                            return {words,keys,type:item.type,templateId:item._id};
+                            return {words,keys,type:item.type,templateId:item._id,sms:item.sms};
                         });
     templates= templates.filter(template=>{
         return template.words.every(word => sms.includes(word));
     });
     if(templates.length==0)
     {
-        return res.json({
-            message: `Template not found`,
-        },400);
+        return {success:false}
     }
     const template=templates[0];
     const words=template.words;
@@ -109,10 +111,21 @@ const filterSms=async (req,res)=>{
         let key=keys[i-1];
         data[key]=part1;
     }
-    res.json({
-            message: `Filtered values`,
-            data
-        });
+    return {success:true,data};
+}
+const filterSms=async (req,res)=>{
+    const { sms } = req.body;
+    const result=await smsToData(sms);
+    if(result.success)
+    {
+       return res.json({
+                    message: `Filtered values`,
+                    data:result.data
+                });
+    }
+    return res.json({
+        message: `Template not found`,
+    },400);
 }
 
 const getAccount=async (req,res)=>{
@@ -124,4 +137,209 @@ const getAccount=async (req,res)=>{
             data:smsTemplate
         });
 }
-module.exports={createTemplate,setAccounts,filterSms,getAccount}
+
+const getSenders = async (req,res) => {
+    const userId= req.token.userId;
+    const senders=await Sender.find({});
+        res.json({
+            message: `Senders List`,
+            data:senders
+        });
+}
+
+const addSenders = async (req, res) => {
+  try {
+    const userId = req.token.userId;
+    const { title,status } = req.body;
+
+    if (!title) {
+      return res.status(400).json({
+        status: false,
+        message: "Sender is required",
+      });
+    }
+    let SenderItem=await Sender.findOne({title});
+    if(SenderItem)
+    {
+      SenderItem.status=status;
+      await SenderItem.save();
+    }else{
+      SenderItem = await Sender.create({
+                    userId,
+                    title,
+                    status
+                });
+    }
+
+
+    res.json({
+      status: true,
+      message: "Sender added successfully",
+      data: SenderItem,
+    });
+
+  } catch (error) {
+
+    console.error(error);
+    res.status(500).json({
+      status: false,
+      message: "Server error",
+    });
+  }
+}
+
+const addRequests = async (req, res) => {
+  try {
+    const userId = req.token.userId;
+    const { title,sms,status } = req.body;
+
+    if (!title) {
+      return res.status(400).json({
+        status: false,
+        message: "Sender is required",
+      });
+    }
+    if (!sms) {
+      return res.status(400).json({
+        status: false,
+        message: "SMS is required",
+      });
+    }
+     let RequestItem = await Request.create({
+                    userId,
+                    title,
+                    sms,
+                    status
+                });
+
+
+    res.json({
+      status: true,
+      message: "SMS added successfully",
+      data: RequestItem,
+    });
+
+  } catch (error) {
+
+    console.error(error);
+    res.status(500).json({
+      status: false,
+      message: "Server error",
+    });
+  }
+}
+
+const listRequest = async (req, res) => {
+  try {
+    const requests = await Request.find({
+      processed: { $ne: 1 }
+    }).populate("userId", "name email");
+
+    // render EJS page and pass data
+    res.render("PendingRequest", {
+      requests  // same as requests: requests
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+};
+
+const processRequest = async (req, res) => {
+    try {
+    const { id } = req.query;
+
+    const request = await Request.findById(id).populate("userId", "name email");
+
+    if(request.status==0)
+    {
+        //ignore
+         const smsTemplates=await SmsTemplate.find({type:'ignore'});
+         const smsTemplate=smsTemplates.find((item)=>item.words.every((word)=>request.sms.includes(word)));
+         if(smsTemplate)
+         {
+                // Update Request as processed
+                await Request.findByIdAndUpdate(id, {
+                processed: 1
+                });
+
+                return res.redirect("/list-sms-request");           
+         }
+    }else if(request.status==1)
+    {
+          const resp=await smsToData(`Sender ${request.title}: ${request.sms}`);
+          if(resp.success)
+          {
+              await Request.findByIdAndUpdate(id, {
+                processed: 1
+                });
+
+                return res.redirect("/list-sms-request"); 
+          }
+        request.template='{"data":{"sender":"VA-FEDBNK-S","amount":"299.00","date":"01-12-2025","time":"16:55:47","to":"maria.antony4-1","txnno":"533572482895","from":"Federal Bank"},"type":"expense"}';
+    }
+    if (!request) {
+      return res.status(404).send("Request not found");
+    }
+
+    res.render("ProcessRequest", {
+      request
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+};
+
+const processRequestPost = async (req, res) => {
+  try {
+    const { id, sms, template, action } = req.body;
+
+    if (!id) return res.status(400).send("Missing request id");
+
+    if (action === "ignore") {
+      // Split template by comma
+      const words = template.split(",").map(w => w.trim()).filter(Boolean);
+      const smsTemplates=await SmsTemplate.find({type:'ignore'});
+     const exist=smsTemplates.find((item)=>words.every(word => item.sms.includes(word)))
+     if(exist)
+     {
+
+     }else{
+      // Save ignore entry
+      await SmsTemplate.create({
+        sms: sms,
+        words: words,
+        type: "ignore"
+      });
+
+     }
+
+    } else {
+        console.log(template);
+       const input= JSON.parse(template)
+       const data=input.data;
+       const type=input.type;
+        let stemplate=sms;
+        for (let key in data) {
+            stemplate=stemplate.replace(data[key],'{'+key+'}')
+            }
+        const smsTemplate=new SmsTemplate({sms,template:stemplate,type});
+        await smsTemplate.save();
+    }
+
+    // Update Request as processed
+    await Request.findByIdAndUpdate(id, {
+      processed: 1
+    });
+
+    return res.redirect("/list-sms-request");
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send("Server Error");
+  }
+};
+module.exports={createTemplate,setAccounts,filterSms,getAccount,addSenders,getSenders,addRequests,listRequest,processRequest,processRequestPost}

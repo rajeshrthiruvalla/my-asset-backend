@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Requests List</title>
+</head>
+<body>
+
+  <h2>Pending Requests (processed != 1)</h2>
+
+  <table border="1" cellpadding="8">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>User Name</th>
+        <th>Email</th>
+        <th>User</th>
+        <th>SMS</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      <% if (requests.length === 0) { %>
+        <tr>
+          <td colspan="4">No pending requests</td>
+        </tr>
+      <% } %>
+
+      <% requests.forEach((req, index) => { %>
+        <tr>
+          <td><%= index + 1 %></td>
+          <td><%= req.title %></td>
+        <td><%= req.userId?.name %></td>
+        <td><%= req.userId?.email %></td>
+        <td><%= req.sms %></td>
+        <td>
+        <% if (req.status == 1) { %>
+            <a href="/process-request?id=<%= req._id %>">add</a>
+        <% } else { %>
+            <a href="/process-request?id=<%= req._id %>">ignore</a>
+        <% } %>
+        </td>
+        </tr>
+      <% }) %>
+
+    </tbody>
+  </table>
+
+</body>
+</html>

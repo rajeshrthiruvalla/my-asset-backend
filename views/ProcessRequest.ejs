@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Process Request</title>
+
+  <style>
+    label { display: block; margin-top: 10px; font-weight: bold; }
+    input, select, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+    }
+    .container {
+      max-width: 500px;
+      margin: 50px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px 15px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <h2>Process Request</h2>
+
+    <form method="POST" action="/process-request">
+
+      <!-- Hidden ID -->
+      <input type="hidden" name="id" value="<%= request._id %>">
+
+      <!-- SMS field (readonly) -->
+      <label>SMS</label>
+      <textarea name="sms" readonly rows="3">Sender <%= request.title %>: <%= request.sms %></textarea>
+
+      <!-- Template text field -->
+      <label>Template</label>
+      <textarea name="template" rows="3"><%= request.template || "" %></textarea>
+
+      <!-- Action dropdown -->
+      <label>Action</label>
+      <select name="action">
+        <% if (request.status == 1) { %>
+        <option value="add" selected>Add</option>
+        <% } else { %>
+        <option value="ignore" selected>Ignore</option>
+        <% } %>
+      </select>
+
+      <button type="submit">Submit</button>
+
+    </form>
+
+  </div>
+</body>
+</html>

@@ -52,9 +52,12 @@ router.route('/budgets')
       .put(updateBudgetValidationRules,validate,updateBudget)
       .delete(deleteBudgetValidationRules,validate,deleteBudget);
 
-const {createTemplate,setAccounts,getAccount,filterSms}=require('../controller/SmsController')
+const {createTemplate,setAccounts,getAccount,filterSms,addSenders,getSenders,addRequests}=require('../controller/SmsController')
 router.post('/sms/create-template',createTemplate)
 router.post('/sms/set-account',setAccounts)
 router.post('/sms/filter-sms',filterSms)
 router.post('/sms/get-account',getAccount)
+router.post('/sms/add-sender',addSenders)
+router.get('/sms/get-senders',getSenders)
+router.post('/sms/add-request',addRequests)
 module.exports=router

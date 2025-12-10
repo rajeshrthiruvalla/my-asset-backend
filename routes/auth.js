@@ -12,4 +12,8 @@ router.get('/delete-account',deleteAccount);
 router.post('/delete-account-submit',loginValidationRules, validate,deleteAccountSubmit)
 router.get('/delete-account-verify-email',deleteAccountVerifyEmail)
 
+const {listRequest,processRequest,processRequestPost}=require('../controller/SmsController')
+router.get('/list-sms-request',listRequest)
+router.get('/process-request',processRequest)
+router.post('/process-request',processRequestPost)
 module.exports=router

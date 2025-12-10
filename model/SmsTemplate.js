@@ -6,8 +6,9 @@ const SmsTemplateSchema = new mongoose.Schema({
   },
   template:{
     type: String,
-    required: true,
+    required: false,
   },
+  words:[{ type: String }],
   type:{
     type: String,
     required: true

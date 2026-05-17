@@ -123,9 +123,9 @@ const filterSms=async (req,res)=>{
                     data:result.data
                 });
     }
-    return res.json({
+    return res.status(400).json({
         message: `Template not found`,
-    },400);
+    });
 }
 
 const getAccount=async (req,res)=>{
@@ -191,7 +191,7 @@ const addSenders = async (req, res) => {
 const addRequests = async (req, res) => {
   try {
     const userId = req.token.userId;
-    const { title,sms,status } = req.body;
+    const { title,sms,status,id } = req.body;
 
     if (!title) {
       return res.status(400).json({
@@ -209,7 +209,8 @@ const addRequests = async (req, res) => {
                     userId,
                     title,
                     sms,
-                    status
+                    status,
+                    requestId:id
                 });
 
 
@@ -342,4 +343,29 @@ const processRequestPost = async (req, res) => {
     return res.status(500).send("Server Error");
   }
 };
-module.exports={createTemplate,setAccounts,filterSms,getAccount,addSenders,getSenders,addRequests,listRequest,processRequest,processRequestPost}
+
+const getProcessedRequestIds=async (req,res)=>{
+    const userId= req.token.userId;
+        const ids = await Request.find(
+        { processed: 1,userId },       // filter
+        { requestId: 1, _id: 0 } // projection → only requestId
+        ).then(res => res.map(r => r.requestId));
+    res.json({
+      status: true,
+      message: "Ids",
+      data: ids,
+    });
+}
+
+const getIgnoredTemplates=async (req,res)=>{
+   const words = await SmsTemplate.find(
+        { type: 'ignore' },       // filter
+        { words: 1, _id: 0 } // projection → only requestId
+        ).then(res => res.map(r => r.words));
+ res.json({
+      status: true,
+      message: "Words",
+      data: words,
+    });
+}
+module.exports={createTemplate,setAccounts,filterSms,getAccount,addSenders,getSenders,addRequests,listRequest,processRequest,processRequestPost,getProcessedRequestIds,getIgnoredTemplates}

@@ -34,6 +34,9 @@ const TransactionSchema = new mongoose.Schema({
     ref: 'User', 
     required: false 
   },
+  messageId:{
+    type: Number
+  }
 }, {
   timestamps: true
 });

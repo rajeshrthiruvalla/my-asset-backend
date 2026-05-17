@@ -2,7 +2,7 @@ const { default: mongoose } = require('mongoose');
 const Transaction=require('../model/Transaction')
 
 const storeTransaction=async (req,res)=>{
-    const {fromAccountId,toAccountId,amount,description,type,entryAt}= req.body;
+    const {fromAccountId,toAccountId,amount,description,type,entryAt,messageId}= req.body;
     const userId= req.token.userId; 
     const transaction = new Transaction({ fromAccountId,
                         toAccountId, 
@@ -10,7 +10,8 @@ const storeTransaction=async (req,res)=>{
                         description,
                         type,
                         entryAt,
-                        userId
+                        userId,
+                        messageId
                         });
        await transaction.save();
       res.json({

@@ -5,7 +5,8 @@ const requestSchema = new mongoose.Schema({
   title: { type: String, required: true },
   sms: { type: String, required: true },
   status:{ type: Number },
-  processed:{ type: Number }
+  processed:{ type: Number },
+  requestId:{type:Number}
 });
 
 // Prevent same user adding same request twice

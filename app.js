@@ -14,4 +14,5 @@ app.set('view engine', 'ejs')
 app.use('/',auth)
 app.use('/',main)
 
-app.listen(3000)
+module.exports = app;
+// app.listen(3000)
